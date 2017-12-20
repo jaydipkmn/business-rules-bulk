@@ -268,7 +268,6 @@ class NumericType(BaseType):
             if isinstance(value, Decimal):
                 return inner_value
             else:
-                # This is the main reason we extended the functionality of the NumericType
                 return AssertionError("{0} is not a valid numeric type".format(inner_value))
 
         # Considering the both type of values getting as Input
@@ -649,11 +648,11 @@ class SelectMultipleType(BaseType):
 
          Instance will be added to values_satisfying_contains_all :
             1) If a contact's tags are ["tag1", "tag2", "tag3", "tag4"] and we define a rule for a list that,
-            Rule : "Contact's tags has_all_of ["tag1", "tag2", "tag3"]".
+            Rule : "Contact's tags contains_all ["tag1", "tag2", "tag3"]".
 
          Instance will be added to values_not_satisfying_contains_all :
             1) If a contact's tags are ["tag1", "tag2", "tag3"] and we define a rule for a list that,
-         Rule : "Contact's tags has_all_of ["tag1", "tag2", "tag3", "tag4"].
+         Rule : "Contact's tags contains_all ["tag1", "tag2", "tag3", "tag4"].
 
         """
         values_satisfying_contains_all = []
@@ -693,10 +692,10 @@ class SelectMultipleType(BaseType):
 
         Instance will be added to value_satisfying_is_contained_by :
             1) If a contact's tags are ["tag1", "tag2", "tag3", "tag4"] and we define a rule for a list that,
-            Rule : "Contact's tags only_has_any_of ["tag1", "tag2", "tag3"]".
+            Rule : "Contact's tags is_contained_by ["tag1", "tag2", "tag3"]".
 
             2) If a contact's tags are ["tag1", "tag2", "tag3"] and we define a rule for a list that,
-             Rule : "Contact's tags only_has_any_of ["tag1", "tag2", "tag3", "tag4"].
+             Rule : "Contact's tags is_contained_by ["tag1", "tag2", "tag3", "tag4"].
         """
 
         def _check_is_contained_by(instance):
@@ -748,11 +747,11 @@ class SelectMultipleType(BaseType):
 
         Instance will be added to values_satisfying_shares_at_least_one_element_with :
             1) If a contact's tags are ["tag1", "tag2", "tag3", "tag4"] and we define a rule for a list that,
-             Rule : "Contact's tags has_at_least_one_of ["tag1", "tag5", "tag6"]".
+             Rule : "Contact's tags shares_at_least_one_element_with ["tag1", "tag5", "tag6"]".
 
         Instance will be added to values_not_satisfying_shares_at_least_one_element_with :
             1) If a contact's tags are ["tag1", "tag2", "tag3"] and we define a rule for a list that,
-             Rule : "Contact's tags only_has_any_of ["tag5", "tag6"].
+             Rule : "Contact's tags shares_at_least_one_element_with ["tag5", "tag6"].
 
             2) In case if any value of self.value.instances is empty
         """
@@ -796,11 +795,11 @@ class SelectMultipleType(BaseType):
 
         Instance will be added to values_satisfying_shares_exactly_one_element_with :
             1)If a contact's tags are ["tag1", "tag2", "tag3"] and we define a rule for a list that,
-            Rule : "Contact's tags has_exactly_one_of ["tag3", "tag6"].
+            Rule : "Contact's tags shares_exactly_one_element_with ["tag3", "tag6"].
 
         Instance will be added to values_not_satisfying_shares_exactly_one_element_with :
             1)If a contact's tags are ["tag1", "tag2", "tag3", "tag4"] and we define a rule for a list that,
-             Rule : "Contact's tags has_exactly_one_of ["tag1", "tag5", "tag6"]".
+             Rule : "Contact's tags shares_exactly_one_element_with ["tag1", "tag5", "tag6"]".
 
             2) In case if any value of self.value.instances is empty
         """

@@ -5,18 +5,17 @@ def run_all(rule_list, defined_variables, defined_actions, stop_on_first_trigger
     values_satisfying_rules = values_not_satisfying_rules = []
     for rule in rule_list:
         values_satisfying_rules, values_not_satisfying_rules = run(rule, defined_variables, defined_actions)
-        if is_rules_executed(values_satisfying_rules):
+        if are_rules_executed(values_satisfying_rules):
             if stop_on_first_trigger:
                 return values_satisfying_rules, values_not_satisfying_rules
-            else:
-                continue
+
     return values_satisfying_rules, values_not_satisfying_rules
 
 
 def run(rule, defined_variables, defined_actions):
     conditions, actions = rule['conditions'], rule['actions']
     values_satisfying_rules, values_not_satisfying_rules = check_conditions_recursively(conditions, defined_variables)
-    if is_rules_executed(values_satisfying_rules):
+    if are_rules_executed(values_satisfying_rules):
         do_actions(actions, defined_actions, values_satisfying_rules)
     return values_satisfying_rules, values_not_satisfying_rules
 
@@ -105,7 +104,7 @@ def do_actions(actions, defined_actions, values_satisfying_rules):
         method(values_satisfying_rules, **params)
 
 
-def is_rules_executed(values):
+def are_rules_executed(values):
     """
 
     :param values:
