@@ -4,7 +4,6 @@ import inspect
 def fn_name_to_pretty_label(name):
     return ' '.join([w.title() for w in name.split('_')])
 
-
 def export_rule_data(variables, actions):
     """ export_rule_data is used to export all information about the
     variables, actions, and operators to the client. This will return a
