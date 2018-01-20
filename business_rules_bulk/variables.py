@@ -23,6 +23,9 @@ class BaseVariables(object):
                  'options': m[1].options,
                  } for m in methods if getattr(m[1], 'is_rule_variable', False)]
 
+    def get_variable_method(self, defined_variables, name, fallback):
+        return getattr(defined_variables, name, fallback)
+
 
 def rule_variable(field_type, label=None, options=None):
     """ Decorator to make a function into a rule variable
@@ -71,10 +74,8 @@ def select_multiple_rule_variable(label=None, options=None):
 
 
 class VariableValues(object):
-
     def __init__(self, variable, instances):
         # variable name
         self.variable = variable
         # list of objects
         self.instances = instances
-

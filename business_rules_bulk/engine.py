@@ -83,7 +83,7 @@ def _get_variable_value(defined_variables, name):
         raise AssertionError("Variable {0} is not defined in class {1}".format(
             name, defined_variables.__class__.__name__))
 
-    method = getattr(defined_variables, name, fallback)
+    method = defined_variables.get_variable_method(defined_variables, name, fallback)
     val = method()
     return method.field_type(val)
 
