@@ -29,12 +29,17 @@ def check_conditions_recursively(conditions, defined_variables):
     if keys == ['all']:
         assert len(conditions['all']) >= 1
 
+        values_satisfying_rules = []
         for condition in conditions['all']:
             values_satisfying_rules, values_not_satisfying_rules = check_conditions_recursively(condition,
                                                                                                 defined_variables)
-
-            satisfy_values_to_return.extend(values_satisfying_rules)
             non_satisfy_values_to_return.extend(values_not_satisfying_rules)
+
+        non_satisfy_values_to_return_ids = [d['id'] for d in non_satisfy_values_to_return]
+
+        satisfy_values_to_return = filter(lambda satisfy_value:
+                                          satisfy_value['id'] not in non_satisfy_values_to_return_ids,
+                                          values_satisfying_rules)
 
         return satisfy_values_to_return, non_satisfy_values_to_return
 
