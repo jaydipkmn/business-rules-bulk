@@ -51,4 +51,5 @@ def get_difference(all_dicts, dict_to_subtract):
     :param dict_to_subtract:
     :return:
     """
-    return filter(lambda single_dict: single_dict not in dict_to_subtract, all_dicts)
+    dict_to_subtract_ids = set([d['id'] for d in dict_to_subtract])
+    return filter(lambda single_value:  single_value['id'] not in dict_to_subtract_ids, all_dicts)
