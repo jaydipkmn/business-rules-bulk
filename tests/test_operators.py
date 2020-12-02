@@ -51,7 +51,7 @@ class NumericOperatorTests(TestCase):
 
     def test_instantiate(self):
         err_string = "foo is not a valid numeric type"
-        with self.assertRaisesRegexp(AssertionError, err_string):
+        with self.assertRaisesRegex(AssertionError, err_string):
             NumericType("foo")
 
     def test_numeric_type_validates_and_casts_decimal(self):
@@ -59,7 +59,7 @@ class NumericOperatorTests(TestCase):
         ten_int = 10
         ten_float = 10.0
         if sys.version_info[0] == 2:
-            ten_long = long(10)
+            ten_long = int(10)
         else:
             ten_long = int(10) # long and int are same in python3
         ten_var_dec = NumericType(ten_dec) # this should not throw an exception
@@ -83,7 +83,7 @@ class NumericOperatorTests(TestCase):
 
     def test_other_value_not_numeric(self):
         error_string = "10 is not a valid numeric type"
-        with self.assertRaisesRegexp(AssertionError, error_string):
+        with self.assertRaisesRegex(AssertionError, error_string):
             NumericType(10).equal_to("10")
 
     def test_numeric_greater_than(self):
@@ -121,10 +121,10 @@ class BooleanOperatorTests(TestCase):
 
     def test_instantiate(self):
         err_string = "foo is not a valid boolean type"
-        with self.assertRaisesRegexp(AssertionError, err_string):
+        with self.assertRaisesRegex(AssertionError, err_string):
             BooleanType("foo")
         err_string = "None is not a valid boolean type"
-        with self.assertRaisesRegexp(AssertionError, err_string):
+        with self.assertRaisesRegex(AssertionError, err_string):
             BooleanType(None)
 
     def test_boolean_is_true_and_is_false(self):

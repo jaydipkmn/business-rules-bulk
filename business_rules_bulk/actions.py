@@ -4,7 +4,7 @@ from . import fields
 from .utils import fn_name_to_pretty_label
 
 
-class BaseActions(object):
+class BaseActions:
     """ Classes that hold a collection of actions to use with the rules
     engine should inherit from this.
     """
@@ -27,13 +27,13 @@ def _validate_action_parameters(func, params):
         for param in params:
             param_name, field_type = param['name'], param['fieldType']
             if param_name not in func.__code__.co_varnames:
-                raise AssertionError("Unknown parameter name {0} specified for"\
-                        " action {1}".format(
+                raise AssertionError("Unknown parameter name {} specified for"\
+                        " action {}".format(
                         param_name, func.__name__))
 
             if field_type not in valid_fields:
-                raise AssertionError("Unknown field type {0} specified for"\
-                        " action {1} param {2}".format(
+                raise AssertionError("Unknown field type {} specified for"\
+                        " action {} param {}".format(
                         field_type, func.__name__, param_name))
 
 def rule_action(label=None, params=None):
@@ -45,7 +45,7 @@ def rule_action(label=None, params=None):
             params_ = [dict(label=fn_name_to_pretty_label(name),
                            name=name,
                            fieldType=field_type) \
-                      for name, field_type in params.items()]
+                      for name, field_type in list(params.items())]
         _validate_action_parameters(func, params_)
         func.is_rule_action = True
         func.label = label \

@@ -35,11 +35,9 @@ def check_conditions_recursively(conditions, defined_variables):
                                                                                                 defined_variables)
             non_satisfy_values_to_return.extend(values_not_satisfying_rules)
 
-        non_satisfy_values_to_return_ids = [d['id'] for d in non_satisfy_values_to_return]
+        non_satisfy_values_to_return_ids = {d['id'] for d in non_satisfy_values_to_return}
 
-        satisfy_values_to_return = filter(lambda satisfy_value:
-                                          satisfy_value['id'] not in non_satisfy_values_to_return_ids,
-                                          values_satisfying_rules)
+        satisfy_values_to_return = [satisfy_value for satisfy_value in values_satisfying_rules if satisfy_value['id'] not in non_satisfy_values_to_return_ids]
 
         return satisfy_values_to_return, non_satisfy_values_to_return
 
@@ -51,11 +49,9 @@ def check_conditions_recursively(conditions, defined_variables):
             satisfy_values_to_return.extend(values_satisfying_rules)
             non_satisfy_values_to_return.extend(values_not_satisfying_rules)
 
-        satisfy_values_to_return_ids = [d['id'] for d in satisfy_values_to_return]
+        satisfy_values_to_return_ids = {d['id'] for d in satisfy_values_to_return}
 
-        non_satisfy_values_to_return = filter(lambda non_satisfy_value:
-                                              non_satisfy_value['id'] not in satisfy_values_to_return_ids,
-                                              non_satisfy_values_to_return)
+        non_satisfy_values_to_return = [non_satisfy_value for non_satisfy_value in non_satisfy_values_to_return if non_satisfy_value['id'] not in satisfy_values_to_return_ids]
 
         return satisfy_values_to_return, non_satisfy_values_to_return
     else:
@@ -85,7 +81,7 @@ def _get_variable_value(defined_variables, name):
     """
 
     def fallback(*args, **kwargs):
-        raise AssertionError("Variable {0} is not defined in class {1}".format(
+        raise AssertionError("Variable {} is not defined in class {}".format(
             name, defined_variables.__class__.__name__))
 
     method = defined_variables.get_variable_method(defined_variables, name, fallback)
@@ -103,7 +99,7 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
     """
 
     def fallback(*args, **kwargs):
-        raise AssertionError("Operator {0} does not exist for type {1}".format(
+        raise AssertionError("Operator {} does not exist for type {}".format(
             operator_name, operator_type.__class__.__name__))
 
     method = getattr(operator_type, operator_name, fallback)
@@ -117,7 +113,7 @@ def do_actions(actions, defined_actions, values_satisfying_rules):
         method_name = action['name']
 
         def fallback(*args, **kwargs):
-            raise AssertionError("Action {0} is not defined in class {1}"
+            raise AssertionError("Action {} is not defined in class {}"
                                  .format(method_name, defined_actions.__class__.__name__))
 
         params = action.get('params') or {}
