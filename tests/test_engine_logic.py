@@ -3,7 +3,7 @@ from business_rules.variables import BaseVariables
 from business_rules.operators import StringType
 from business_rules.actions import BaseActions
 
-from mock import patch, MagicMock
+from unittest.mock import patch, MagicMock
 from . import TestCase
 
 
