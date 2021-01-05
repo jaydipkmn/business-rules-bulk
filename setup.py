@@ -12,7 +12,7 @@ description = 'Python DSL for setting up business intelligence rules that can be
 setuptools.setup(
         name='business-rules-bulk',
         version=version,
-        description='{0}\n\n{1}'.format(description, history),
+        description=f'{description}\n\n{history}',
         author='Venmo',
         author_email='open-source@venmo.com',
         url='https://github.com/venmo/business-rules',

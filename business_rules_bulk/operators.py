@@ -7,10 +7,10 @@ from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
 from .utils import fn_name_to_pretty_label, float_to_decimal, get_difference
 from decimal import Decimal, Inexact, Context
-import variables
+from . import variables
 
 
-class BaseType(object):
+class BaseType:
     def __init__(self, value):
         self.value = self._assert_valid_value_and_cast(value)
 
@@ -51,8 +51,8 @@ def type_operator(input_type, label=None,
         def inner(self, *args, **kwargs):
             if assert_type_for_arguments:
                 args = [self._assert_valid_value_and_cast(arg) for arg in args]
-                kwargs = dict((k, self._assert_valid_value_and_cast(v))
-                              for k, v in kwargs.items())
+                kwargs = {k: self._assert_valid_value_and_cast(v)
+                              for k, v in kwargs.items()}
             return func(self, *args, **kwargs)
 
         return inner
@@ -101,9 +101,9 @@ class StringType(BaseType):
         other_string
 
         """
-        values_satisfying_equal_to = filter(
-            lambda single_instance: single_instance[self.value.variable] == other_string if
-            single_instance[self.value.variable] else False, self.value.instances)
+        values_satisfying_equal_to = [single_instance for single_instance in self.value.instances
+                                      if single_instance[self.value.variable] and
+                                      single_instance[self.value.variable] == other_string]
         values_not_satisfying_equal_to = get_difference(self.value.instances, values_satisfying_equal_to)
         return values_satisfying_equal_to, values_not_satisfying_equal_to
 
@@ -123,10 +123,10 @@ class StringType(BaseType):
         values_not_satisfying_equal_to_case_sensitive : list of instances which DOES NOT satisfy the
         equal_to_case_insensitive condition against other_string
         """
-        values_satisfying_equal_to_case_sensitive = filter(
-            lambda single_instance: single_instance[self.value.variable].lower() == other_string.lower() if
-            single_instance[self.value.variable] else False, self.value.instances)
-
+        values_satisfying_equal_to_case_sensitive = [single_instance for single_instance in self.value.instances
+                                                     if single_instance[self.value.variable] and
+                                                     single_instance[
+                                                         self.value.variable].lower() == other_string.lower()]
         values_not_satisfying_equal_to_case_sensitive = get_difference(
             self.value.instances, values_satisfying_equal_to_case_sensitive)
         return values_satisfying_equal_to_case_sensitive, values_not_satisfying_equal_to_case_sensitive
@@ -146,10 +146,9 @@ class StringType(BaseType):
         values_not_satisfying_starts_with : list of instances which DOES NOT satisfy the starts_with
         condition against other_string
         """
-        values_satisfying_starts_with = filter(
-            lambda single_instance: single_instance[self.value.variable].startswith(other_string) if
-            single_instance[self.value.variable] else False, self.value.instances)
-
+        values_satisfying_starts_with = [single_instance for single_instance in self.value.instances
+                                         if single_instance[self.value.variable] and
+                                         single_instance[self.value.variable].startswith(other_string)]
         values_not_satisfying_starts_with = get_difference(self.value.instances, values_satisfying_starts_with)
         return values_satisfying_starts_with, values_not_satisfying_starts_with
 
@@ -168,10 +167,9 @@ class StringType(BaseType):
         values_not_satisfying_ends_with : list of instances which DOES NOT satisfy the ends_with
         condition against other_string
         """
-        values_satisfying_ends_with = filter(
-            lambda single_instance: single_instance[self.value.variable].endswith(other_string) if
-            single_instance[self.value.variable] else False, self.value.instances)
-
+        values_satisfying_ends_with = [single_instance for single_instance in self.value.instances
+                                       if single_instance[self.value.variable] and
+                                       single_instance[self.value.variable].endswith(other_string)]
         values_not_satisfying_ends_with = get_difference(self.value.instances, values_satisfying_ends_with)
         return values_satisfying_ends_with, values_not_satisfying_ends_with
 
@@ -190,10 +188,9 @@ class StringType(BaseType):
         values_not_satisfying_contains : list of instances which DOES NOT satisfy the contains
         condition against other_string
         """
-        values_satisfying_contains = filter(
-            lambda single_instance: other_string in single_instance[self.value.variable] if
-            single_instance[self.value.variable] else False, self.value.instances)
-
+        values_satisfying_contains = [single_instance for single_instance in self.value.instances
+                                      if single_instance[self.value.variable] and
+                                      other_string in single_instance[self.value.variable]]
         values_not_satisfying_contains = get_difference(self.value.instances, values_satisfying_contains)
         return values_satisfying_contains, values_not_satisfying_contains
 
@@ -214,10 +211,9 @@ class StringType(BaseType):
         values_not_satisfying_contains : list of instances which DOES NOT satisfy the matches_regex
         condition against other_string
         """
-        values_satisfying_regex = filter(
-            lambda single_instance: re.search(regex, single_instance[self.value.variable]) if
-            single_instance[self.value.variable] else False, self.value.instances)
-
+        values_satisfying_regex = [single_instance for single_instance in self.value.instances
+                                   if single_instance[self.value.variable] and
+                                   re.search(regex, single_instance[self.value.variable])]
         values_not_satisfying_regex = get_difference(self.value.instances, values_satisfying_regex)
         return values_satisfying_regex, values_not_satisfying_regex
 
@@ -230,10 +226,9 @@ class StringType(BaseType):
         values_not_satisfying_non_empty : list of instances which DOES NOT satisfy the non_empty
         condition against other_string
         """
-        values_satisfying_non_empty = filter(
-            lambda single_instance: bool(single_instance[self.value.variable]) if
-            single_instance[self.value.variable] else False, self.value.instances)
-
+        values_satisfying_non_empty = [single_instance for single_instance in self.value.instances
+                                       if single_instance[self.value.variable] and
+                                       bool(single_instance[self.value.variable])]
         values_not_satisfying_non_empty = get_difference(self.value.instances, values_satisfying_non_empty)
         return values_satisfying_non_empty, values_not_satisfying_non_empty
 
@@ -268,7 +263,7 @@ class NumericType(BaseType):
             if isinstance(value, Decimal):
                 return inner_value
             else:
-                return AssertionError("{0} is not a valid numeric type".format(inner_value))
+                return AssertionError(f"{inner_value} is not a valid numeric type")
 
         # Considering the both type of values getting as Input
         if not isinstance(value, variables.VariableValues):
@@ -302,10 +297,8 @@ class NumericType(BaseType):
 
         In case if any of self.value.instances is null, that value will be added in values_not_satisfying_equal_to
         """
-        values_satisfying_equal_to = filter(
-            lambda single_instance: abs(single_instance[self.value.variable] - other_numeric) <= self.EPSILON,
-            self.value.instances)
-
+        values_satisfying_equal_to = [single_instance for single_instance in self.value.instances
+                                      if abs(single_instance[self.value.variable] - other_numeric) <= self.EPSILON]
         values_not_satisfying_equal_to = get_difference(self.value.instances, values_satisfying_equal_to)
         return values_satisfying_equal_to, values_not_satisfying_equal_to
 
@@ -329,10 +322,8 @@ class NumericType(BaseType):
         values_not_satisfying_greater_than : list of instances which DOES NOT satisfy the greater_than condition against
         other_numeric
         """
-        values_satisfying_greater_than = filter(
-            lambda single_instance: (single_instance[self.value.variable] - other_numeric) > self.EPSILON,
-            self.value.instances)
-
+        values_satisfying_greater_than = [single_instance for single_instance in self.value.instances
+                                          if (single_instance[self.value.variable] - other_numeric) > self.EPSILON]
         values_not_satisfying_greater_than = get_difference(self.value.instances, values_satisfying_greater_than)
         return values_satisfying_greater_than, values_not_satisfying_greater_than
 
@@ -357,10 +348,8 @@ class NumericType(BaseType):
         values_not_satisfying_greater_than_equal_to : list of instances which DOES NOT satisfy the greater_than_or_equal_
         to condition against other_numeric
         """
-        values_satisfying_greater_than_equal_to = filter(
-            lambda single_instance: self.greater_than(other_numeric) or self.equal_to(other_numeric),
-            self.value.instances)
-
+        values_satisfying_greater_than_equal_to = [single_instance for single_instance in self.value.instances
+                                                   if (self.greater_than(other_numeric) or self.equal_to(other_numeric))]
         values_not_satisfying_greater_than_equal_to = get_difference(
             self.value.instances, values_satisfying_greater_than_equal_to)
 
@@ -387,9 +376,8 @@ class NumericType(BaseType):
         other_numeric
 
         """
-        values_satisfying_less_than = filter(
-            lambda single_instance: (other_numeric - self.value) > self.EPSILON, self.value.instances)
-
+        values_satisfying_less_than = [single_instance for single_instance in self.value.instances
+                                       if (other_numeric - self.value) > self.EPSILON]
         values_not_satisfying_less_than = get_difference(self.value.instances, values_satisfying_less_than)
         return values_satisfying_less_than, values_not_satisfying_less_than
 
@@ -419,9 +407,8 @@ class NumericType(BaseType):
         In case if any of self.value.instances is null, that value will be added in
         values_not_satisfying_less_than_equal_to.
         """
-        values_satisfying_less_than_equal_to = filter(
-            lambda single_instance: self.less_than(other_numeric) or self.equal_to(other_numeric), self.value.instances)
-
+        values_satisfying_less_than_equal_to = [single_instance for single_instance in self.value.instances
+                                                if self.less_than(other_numeric) or self.equal_to(other_numeric)]
         values_not_satisfying_less_than_equal_to = get_difference(
             self.value.instances, values_satisfying_less_than_equal_to)
 
@@ -444,12 +431,12 @@ class BooleanType(BaseType):
         """
         if not isinstance(value, variables.VariableValues):
             if type(value) != bool:
-                raise AssertionError("{0} is not a valid boolean type.".format(value))
+                raise AssertionError(f"{value} is not a valid boolean type.")
 
         if isinstance(value, variables.VariableValues):
             for single_value in value.instances:
                 if type(single_value[value.variable]) != bool:
-                    raise AssertionError("{0} is not a valid boolean type.".format(
+                    raise AssertionError("{} is not a valid boolean type.".format(
                         single_value[value.variable]))
         return value
 
@@ -461,10 +448,9 @@ class BooleanType(BaseType):
 
         values_not_satisfying_is_true : list of instances which DOES NOT satisfy the is_true condition
         """
-        values_satisfying_is_true = filter(
-            lambda single_instance: single_instance[self.value.variable] if
-            single_instance[self.value.variable] else False, self.value.instances)
-
+        values_satisfying_is_true = [single_instance for single_instance in self.value.instances
+                                     if single_instance[self.value.variable] and
+                                     single_instance[self.value.variable] is True]
         values_not_satisfying_is_true = get_difference(self.value.instances, values_satisfying_is_true)
         return values_satisfying_is_true, values_not_satisfying_is_true
 
@@ -476,10 +462,9 @@ class BooleanType(BaseType):
 
         values_not_satisfying_is_false : list of instances which DOES NOT satisfy the is_false condition
         """
-        values_satisfying_is_false = filter(
-            lambda single_instance: not single_instance[self.value.variable] if
-            single_instance[self.value.variable] else False, self.value.instances)
-
+        values_satisfying_is_false = [single_instance for single_instance in self.value.instances
+                                      if not single_instance[self.value.variable] and
+                                      single_instance[self.value.variable] is False]
         values_not_satisfying_equal_to = get_difference(self.value.instances, values_satisfying_is_false)
         return values_satisfying_is_false, values_not_satisfying_equal_to
 
@@ -551,10 +536,9 @@ class SelectType(BaseType):
                     return True
                 return False
 
-        values_satisfying_contains = filter(
-            lambda single_instance: _check_contains(single_instance[self.value.variable]) if
-            single_instance[self.value.variable] else False, self.value.instances)
-
+        values_satisfying_contains = [single_instance for single_instance in self.value.instances
+                                      if single_instance[self.value.variable] and
+                                      _check_contains(single_instance[self.value.variable])]
         values_not_satisfying_contains = get_difference(self.value.instances, values_satisfying_contains)
         return values_satisfying_contains, values_not_satisfying_contains
 
@@ -588,10 +572,9 @@ class SelectType(BaseType):
                         return False
             return True
 
-        values_satisfying_does_not_contains = filter(
-            lambda single_instance: _check_does_not_contains(single_instance[self.value.variable]) if
-            single_instance[self.value.variable] else False, self.value.instances)
-
+        values_satisfying_does_not_contains = [single_instance for single_instance in self.value.instances
+                                               if single_instance[self.value.variable] and
+                                               _check_does_not_contains(single_instance[self.value.variable])]
         values_not_satisfying_does_not_contains = get_difference(
             self.value.instances, values_satisfying_does_not_contains)
         return values_satisfying_does_not_contains, values_not_satisfying_does_not_contains

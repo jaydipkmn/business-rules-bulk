@@ -9,7 +9,7 @@ from .operators import (BaseType,
                         SelectMultipleType)
 
 
-class BaseVariables(object):
+class BaseVariables:
     """ Classes that hold a collection of variables to use with the rules
     engine should inherit from this.
     """
@@ -34,7 +34,7 @@ def rule_variable(field_type, label=None, options=None):
 
     def wrapper(func):
         if not (type(field_type) == type and issubclass(field_type, BaseType)):
-            raise AssertionError("{0} is not instance of BaseType in" \
+            raise AssertionError("{} is not instance of BaseType in" \
                                  " rule_variable field_type".format(field_type))
         func.field_type = field_type
         func.is_rule_variable = True
@@ -73,7 +73,7 @@ def select_multiple_rule_variable(label=None, options=None):
     return rule_variable(SelectMultipleType, label=label, options=options)
 
 
-class VariableValues(object):
+class VariableValues:
     def __init__(self, variable, instances):
         # variable name
         self.variable = variable
